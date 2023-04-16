@@ -18,7 +18,7 @@ if [ -e webrtc_checkout ]; then
 else
 	mkdir webrtc_checkout
 	pushd webrtc_checkout/ >/dev/null
-	fetch --nohooks webrtc
+	fetch --nohooks webrtc_android
 fi
 
 pushd src > /dev/null
@@ -44,9 +44,23 @@ for PATCH in ../../patch/*.patch; do
   patch -p1 < $PATCH
 done
 
-export ARGS="is_debug=false rtc_include_tests=false rtc_build_examples=false rtc_build_tools=false use_custom_libcxx=false rtc_use_x11=false use_rtti=true treat_warnings_as_errors=false"
+. build/android/envsetup.sh 
+
+export ARGS="is_debug=false rtc_include_tests=false rtc_build_examples=false rtc_build_tools=false use_custom_libcxx=false treat_warnings_as_errors=false"
 gn gen out/linux-x86_64 -args="target_os=\"linux\" target_cpu=\"x64\" $ARGS"
 ninja -C out/linux-x86_64
+
+gn gen out/android-i386 -args="target_os=\"android\" target_cpu=\"x86\" $ARGS"
+ninja -C out/android-i386
+
+gn gen out/android-x86_64 -args="target_os=\"android\" target_cpu=\"x64\" $ARGS"
+ninja -C out/android-x86_64
+
+gn gen out/android-armv7 -args="target_os=\"android\" target_cpu=\"arm\" $ARGS"
+ninja -C out/android-armv7
+
+gn gen out/android-arm64 -args="target_os=\"android\" target_cpu=\"arm64\" $ARGS"
+ninja -C out/android-arm64
 
 popd > /dev/null
 popd > /dev/null
